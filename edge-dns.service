@@ -1,0 +1,8 @@
+[Unit]
+Description=Edge DNS Updater
+
+[Service]
+WorkingDirectory=/home/ubuntu/edge-dns
+ExecStart=/home/ubuntu/.local/share/virtualenvs/edge-dns-vRNJj67i/bin/python /home/ubuntu/edge-dns/main.py
+[Install]
+WantedBy=multi-user.target
