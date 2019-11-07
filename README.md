@@ -1,5 +1,5 @@
 # openvpn-route53-dns
-Service that scrapes a local openvpn server and makes dns entries in route53 for each common-name
+Service that scrapes a local openvpn server client config directory (CCD)  and makes dns entries in route53 for each common-name
 
 Requirements:
 - pipenv
