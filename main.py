@@ -3,6 +3,10 @@ import os
 import ipaddress
 import time
 
+CCD_DIR = '/etc/openvpn/vpn.aceiot.cloud-ccd'
+ROOT_DOMAIN = 'aceiot.cloud.'
+HOSTS_ROOT = f'clients.{ROOT_DOMAIN}'
+PROM_SRV_RECORD = "_prom-edge._tcp.aceiot.cloud."
 r53 = boto3.client('route53')
 
 # results = r53.get_hosted_zone(Id='aceiot.cloud.')
@@ -22,7 +26,7 @@ def get_records():
 
 def get_edge_hosts():
     ips = []
-    for root, subdirs, files in os.walk('/etc/openvpn/vpn.aceiot.cloud-ccd'):
+    for root, subdirs, files in os.walk(CCD_DIR):
         for path in files:
             with open(os.path.join(root, path), 'r') as f:
                 if path != 'energy_data_test':
@@ -36,7 +40,7 @@ def get_edge_hosts():
 
 def get_edge_ips():
     ips = []
-    for root, subdirs, files in os.walk('/etc/openvpn/vpn.aceiot.cloud-ccd'):
+    for root, subdirs, files in os.walk(CCD_DIR):
         for path in files:
             with open(os.path.join(root, path), 'r') as f:
                 for line in f:
@@ -55,7 +59,7 @@ def create_a_change_batch(hosts):
             {
                 'Action': 'UPSERT',
                 'ResourceRecordSet': {
-                    'Name': f"{host}.clients.aceiot.cloud.",
+                    'Name': f"{host}.{HOSTS_ROOT}",
                     'Type': 'A',
                     'TTL': 300,
                     'ResourceRecords': [
@@ -66,7 +70,7 @@ def create_a_change_batch(hosts):
 
 def create_srv_record_set(hosts):
     record_set = {
-        'Name': "_prom-edge._tcp.aceiot.cloud.",
+        'Name': PROM_SRV_RECORD,
         'Type': 'SRV',
         'TTL': 300,
         'ResourceRecords': []
@@ -101,7 +105,7 @@ def set_record_set(record_set, zone_id):
 
 
 if __name__ == '__main__':
-    zid = get_hosted_zone_id('aceiot.cloud.', private=True)
+    zid = get_hosted_zone_id(ROOT_DOMAIN, private=True)
     while True:
         try:
             hosts = get_edge_hosts()
